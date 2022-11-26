@@ -803,3 +803,111 @@ exports.getCompleteHistory = async (req, res) => {
     res.status(400).send({ message: "Error to get data", err });
   }
 };
+
+exports.allProduct = async (req, res) => {
+  const client = new MongoClient(process.env.MONGODB_URI);
+  const { Email , proID , RecName  } = req.body
+  const dbo = client.db(process.env.DB_NAME);
+  await client.connect();
+ 
+  const query = req.query
+    const newQuery = query.User
+    const useQuery = newQuery?.replaceAll('"', ''); 
+
+    try {
+        
+      await dbo
+      .collection("Product")
+        .find({})
+
+        .toArray((err, result) => {
+          if (err)
+            res.status(400).send({ message: "Cannot connect to database" });
+            // console.log(getEmailModify);
+          res.send(result);
+          // console.log(result);
+          
+          console.log("Get Data Success");
+        });
+      
+        
+      } catch (err) {
+        res.status(400).send({ message: "Error to get data", err });
+      }
+};
+exports.Search = async (req, res) => {
+  const client = new MongoClient(process.env.MONGODB_URI);
+  const { searchText,category } = req.body;
+  const dbo = client.db(process.env.DB_NAME);
+  await client.connect();
+ 
+
+    try {
+        
+      const a = await dbo
+      .collection("Product")
+      .find({ productName: { $regex: searchText.trim(),$options:'i' } })
+      .toArray();
+
+    res.send({ searchResult: a });
+        
+      } catch (err) {
+        res.status(400).send({ message: "Error to get data", err });
+      }
+};
+
+exports.FilterPrice = async (req, res) => {
+  const client = new MongoClient(process.env.MONGODB_URI);
+  const query = req.query;
+    const category = query.price;
+    const DataCategory = category.split("-");
+    const NewPrice = parseInt(DataCategory[1])
+  const dbo = client.db(process.env.DB_NAME);
+  await client.connect();
+ 
+
+    try {
+        
+      await dbo
+      .collection("Product")
+        .find({  price: { "$gt": 0, '$lt': NewPrice } })
+        
+        .toArray((err, result) => {
+          if (err)
+            res.status(400).send({ message: "Cannot connect to database" });
+            // console.log(getEmailModify);
+          res.send(result);
+        });
+        
+      } catch (err) {
+        res.status(400).send({ message: "Error to get data", err });
+      }
+};
+
+exports.FilterProduct = async (req, res) => {
+  const client = new MongoClient(process.env.MONGODB_URI);
+  const query = req.query;
+  const category = query.category;
+  const DataCategory = category.split("-");
+  const NewPrice = parseInt(DataCategory[1])
+  const dbo = client.db(process.env.DB_NAME);
+  await client.connect();
+ 
+
+    try {
+        
+      await dbo
+                  .collection("Product")
+                    .find({ category: DataCategory[0] ,price: { "$gt": 0, '$lt': NewPrice } })
+                    
+                    .toArray((err, result) => {
+                      if (err)
+                        res.status(400).send({ message: "Cannot connect to database" });
+                        // console.log(getEmailModify);
+                      res.send(result);
+                     
+                    });
+      } catch (err) {
+        res.status(400).send({ message: "Error to get data", err });
+      }
+};

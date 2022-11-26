@@ -38,5 +38,12 @@ router.post('/PackingReturnComplete', controller.PackingReturnComplete)
 
 router.get('/getCompleteHistory', controller.getCompleteHistory)
 
+router.get('/allProduct', controller.allProduct)
+
+router.post('/Search', controller.Search)
+
+router.get('/FilterProduct', controller.FilterProduct)
+
+router.get('/FilterPrice', controller.FilterPrice)
 
 module.exports = router;
