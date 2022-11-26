@@ -28,4 +28,15 @@ router.post('/addReview', controller.addReview)
 
 router.post('/addReturn', controller.addReturn)
 
+router.get('/getHistory', controller.getHistory)
+
+router.get('/getReturnHistory', controller.getReturnHistory)
+
+router.post('/received', controller.received)
+
+router.post('/PackingReturnComplete', controller.PackingReturnComplete)
+
+router.get('/getCompleteHistory', controller.getCompleteHistory)
+
+
 module.exports = router;

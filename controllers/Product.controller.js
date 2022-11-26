@@ -218,7 +218,7 @@ exports.getComment = async (req, res) => {
   const query = req.query;
   const linkSplit = query.link;
   const split = linkSplit?.split("-");
- 
+
   try {
     const getComment = await dbo
       .collection("Comment")
@@ -474,7 +474,7 @@ exports.addReview = async (req, res) => {
   try {
     const CheckM = await dbo
       .collection("Review")
-      .findOne({ id:req.body.id , Star: req.body.Star });
+      .findOne({ id: req.body.id, Star: req.body.Star });
     if (CheckM === null) {
       dbo.collection("Review").insertOne(
         {
@@ -553,37 +553,253 @@ exports.addReview = async (req, res) => {
 
 exports.addReturn = async (req, res) => {
   const client = new MongoClient(process.env.MONGODB_URI);
+
   await client.connect();
-  var { id, UserEmail, productName, shopName, Star, CommentUser } = req.body;
+  const {
+    id,
+    UserEmail,
+    productName,
+    newShopName,
+    Reason,
+    Amount,
+    Price,
+    shopEmail,
+    productID,
+    Address,
+  } = req.body;
   const Email = UserEmail.replaceAll('"', "");
   const dbo = client.db(process.env.DB_NAME);
+
+  let myobj = {
+    Head: "Return",
+    User: Email,
+    shopName: req.body.newShopName,
+    productID: req.body.productID,
+    productName: req.body.productName,
+    price: Price,
+    amount: req.body.Amount,
+    Reason: req.body.Reason,
+    Address: req.body.Address,
+    status: "Checking",
+  };
+
+  dbo.collection("Report").insertOne(myobj, function (err, result) {
+    if (err) throw err;
+   
+  });
+  dbo
+    .collection("Complete")
+    .findOneAndDelete({ User: UserEmail, productID: productID });
+
+  res.status(200).send("OK");
+};
+
+exports.getHistory = async (req, res) => {
+  const client = new MongoClient(process.env.MONGODB_URI);
+  const dbo = client.db(process.env.DB_NAME);
+  await client.connect();
+  const query = req.query
+  const newQuery = query.User
+  const useQuery = newQuery?.replaceAll('"', ''); 
+ 
+
   try {
-    let myobj = {
-      Head:"Return",
-      User: UserEmail,
-      shopEmail:shopEmail,
-      shopName: newShopName,
-      productID:productID,
-      productName: productName,
-      price: parseInt(Price),
-      amount: parseInt(Amount),
-      Reason: Reason,
-      Address:Address,
-      status:"Checking"
+    // console.log(useQuery)
+    await dbo
+      .collection("History")
+      .find({ User: useQuery })
+      .project({
+        _id: 0,
+        status: 1,
+        productID: 1,
+        amount: 1,
+        DShopName: 1,
+        DProductName: 1,
+        DPrice: 1,
+        DCategory: 1,
+        Address: 1,
+        Method: 1,
+      })
+      .toArray((err, result) => {
+        if (err) {
+        
+          res.status(400).send({ message: "Cannot connect to database" });
+        }
+        // console.log(getEmailModify);
+        res.send(result);
+        
 
-    }
+      
+      });
+  } catch (err) {
+    res.status(400).send({ message: "Error to get data", err });
+  }
+};
 
-    dbo.collection("Report").insertOne(myobj, function (err, result) {
-      if (err) throw err;
-      console.log("Created Data");
+exports.getReturnHistory = async (req, res) => {
+  const client = new MongoClient(process.env.MONGODB_URI);
+  const dbo = client.db(process.env.DB_NAME);
+  await client.connect();
+  const query = req.query
+  const newQuery = query.User
+  const useQuery = newQuery?.replaceAll('"', ''); 
+ 
+
+  try {
+    console.log("GET!!!!")
+  await dbo
+  .collection("Report")
+    .find({ Head : "Return" , User : useQuery})
+    .project({
+      _id: 0,                      
+        Head:1,
+        User:1,
+        Address:1,
+        shopName:1,
+        shopEmail:1,
+        productID:1,
+        productName:1,
+        price:1,
+        amount:1,
+        Reason:1,
+        status:1,          
+    })
+    .toArray((err, result) => {
+      if (err){
+        console.log("Cant connect data")
+        res.status(400).send({ message: "Cannot connect to database" });
+        }
+        // console.log(getEmailModify);
+      res.send(result);
+      console.log(result);
+       
+      
+      console.log("Get Data Success");
     });
-    dbo.collection("Complete").findOneAndDelete({ User : UserEmail , productID:productID  } , )
-
-
-    res.status(200).send("OK")
+  
     
   } catch (err) {
     res.status(400).send({ message: "Error to get data", err });
   }
 };
 
+exports.received = async (req, res) => {
+  const client = new MongoClient(process.env.MONGODB_URI);
+  const { Email , proID , ShopName  } = req.body
+  const dbo = client.db(process.env.DB_NAME);
+  await client.connect();
+ 
+  var editEmail = Email.replaceAll('"','' ) 
+
+  try {
+   
+     if( Email !== undefined && proID !== undefined && ShopName !== undefined)
+     {  
+        let CheckM = await dbo.collection("History").findOne( {User : editEmail , productID : proID , DShopName : ShopName} ) 
+        let myobj = {
+            User: CheckM.User ,
+            productID:CheckM.productID, 
+            status :"Complete" , 
+            amount : CheckM.amount , 
+            DEmail : CheckM.DEmail , 
+            DShopName : CheckM.DShopName , 
+            DProductName : CheckM.DProductName , 
+            DPrice : CheckM.DPrice ,
+            DCategory : CheckM.DCategory,
+            Address : CheckM.Address
+        }
+        dbo.collection("Complete").insertOne(myobj , function(err, res) {
+            if (err) { throw err; }
+            else {         
+            console.log("Created Data at Complete");             
+               }
+            })
+            dbo.collection("History").findOneAndDelete(
+                { User : editEmail , productID : proID , DShopName : ShopName },
+               
+             )
+            dbo.collection("Order").findOneAndDelete(
+                { User : editEmail , productID : proID , DShopName : ShopName },
+               
+            )
+
+
+        console.log("Change Complete")
+        res.status(200).send("Success")
+     }
+    //  else{ 
+    //     res.status(400).send("Fail") }
+    
+  } catch (err) {
+    res.status(400).send({ message: "Error to get data", err });
+  }
+};
+
+exports.PackingReturnComplete = async (req, res) => {
+  const client = new MongoClient(process.env.MONGODB_URI);
+  const { Email , proID , RecName  } = req.body
+  const dbo = client.db(process.env.DB_NAME);
+  await client.connect();
+ 
+  var editEmail = Email.replaceAll('"','' ) 
+
+  try {
+   
+    if( Email !== undefined && proID !== undefined && RecName !== undefined)
+    {  
+       const updateAmount = { $set : { status : "Delivering"}}
+       dbo.collection("Report").findOneAndUpdate({ User : RecName , productID : proID , shopEmail : Email} , updateAmount ) 
+
+       console.log("Change Complete")
+       res.status(200).send("Success")
+    }else{ res.status(400).send("Fail") }
+    
+  } catch (err) {
+    res.status(400).send({ message: "Error to get data", err });
+  }
+};
+
+exports.getCompleteHistory = async (req, res) => {
+  const client = new MongoClient(process.env.MONGODB_URI);
+  const { Email , proID , RecName  } = req.body
+  const dbo = client.db(process.env.DB_NAME);
+  await client.connect();
+ 
+  const query = req.query
+    const newQuery = query.User
+    const useQuery = newQuery?.replaceAll('"', ''); 
+
+  try {
+   
+    await dbo
+          .collection("Complete")
+            .find({ User : useQuery})
+            .project({
+                _id: 0, 
+                User:1,                     
+                status:1,
+                productID:1,
+                amount:1,
+                DShopName:1,
+                DProductName:1,
+                DPrice:1,
+                DCategory:1 ,
+                Address:1,         
+            })
+            .toArray((err, result) => {
+              if (err){
+                console.log("Cant connect data")
+                res.status(400).send({ message: "Cannot connect to database" });
+                }
+                // console.log(getEmailModify);
+              res.send(result);
+              console.log(result);
+               
+              
+              console.log("Get Data Success");
+            });
+          
+  } catch (err) {
+    res.status(400).send({ message: "Error to get data", err });
+  }
+};
