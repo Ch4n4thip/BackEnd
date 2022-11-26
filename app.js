@@ -15,7 +15,7 @@ const corsOptions = {
 }
 app.use(express.json())
 app.use(cors(corsOptions))
-app.use(express.static('public'))
+// app.use(express.static('public'))
 app.get('/', (req, res) => {
     res.status(200).json({
         status: 200,
