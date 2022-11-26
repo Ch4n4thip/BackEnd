@@ -15,6 +15,7 @@ const corsOptions = {
 }
 app.use(express.json())
 app.use(cors(corsOptions))
+//test
 // app.use(express.static('public'))
 app.get('/', (req, res) => {
     res.status(200).json({
