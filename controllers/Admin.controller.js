@@ -1,7 +1,7 @@
 const mongoUtil = require('../config/database')
 const { MongoClient } = require('mongodb')
 const ObjectId = require('mongodb').ObjectId
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
 
 exports.getReport = async (req, res) => {
     const client = new MongoClient(process.env.MONGODB_URI);
