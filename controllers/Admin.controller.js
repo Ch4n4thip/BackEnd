@@ -13,7 +13,7 @@ exports.getReport = async (req, res) => {
    
  
       try {
-        // console.log(useQuery)
+       
       await dbo
       .collection("Report")
         .find({ Head : "Report"})
@@ -27,15 +27,12 @@ exports.getReport = async (req, res) => {
         })
         .toArray((err, result) => {
           if (err){
-            console.log("Cant connect data")
+        
             res.status(400).send({ message: "Cannot connect to database" });
             }
-            // console.log(getEmailModify);
-          res.send(result);
-          console.log(result);
            
-          
-          console.log("Get Data Success");
+          res.send(result);
+        
         });
       
         
@@ -54,7 +51,7 @@ exports.getReport = async (req, res) => {
    
  
     try {
-        // console.log(useQuery)
+     
       await dbo
       .collection("ReportComplete")
         .find({ Status : "Banned"})
@@ -70,15 +67,12 @@ exports.getReport = async (req, res) => {
         })
         .toArray((err, result) => {
           if (err){
-            console.log("Cant connect data")
+          
             res.status(400).send({ message: "Cannot connect to database" });
             }
-            // console.log(getEmailModify);
+            
           res.send(result);
-          console.log(result);
-           
-          
-          console.log("Get Data Success");
+        
         });
       
         
@@ -92,18 +86,19 @@ exports.getReport = async (req, res) => {
     const { Email , proID , RecName  } = req.body
     const dbo = client.db(process.env.DB_NAME);
     await client.connect();
-   
- 
+   console.log(RecName)
+ console.log("Approve")
     try {
-        // console.log(useQuery)
+     
         if( Email !== undefined && proID !== undefined && RecName !== undefined)
         {  
            const updateAmount = { $set : { status : "Packing"}}
-           dbo.collection("Report").findOneAndUpdate({ User : RecName , productID : proID , shopEmail : Email} , updateAmount ) 
+           dbo.collection("Report").findOneAndUpdate({ User : RecName , productID : proID , shopName : Email} , updateAmount ) 
    
-           console.log("Change Complete")
+         
            res.status(200).send("Success")
-        }else{ res.status(400).send("Fail") }
+        }
+        else{ res.status(400).send("Fail") }
       
         
       } catch (err) {
@@ -120,13 +115,13 @@ exports.getReport = async (req, res) => {
    
  
     try {
-        // console.log(useQuery)
+       
         if( Email !== undefined && proID !== undefined && RecName !== undefined)
      {  
         const updateAmount = { $set : { status : "Disapprove"}}
         dbo.collection("Report").findOneAndUpdate({ User : RecName , productID : proID , shopEmail : Email} , updateAmount ) 
 
-        console.log("Change Complete")
+  
         res.status(200).send("Success")
      }else{ res.status(400).send("Fail") }
       
@@ -142,10 +137,12 @@ exports.getReport = async (req, res) => {
     const { User , Target , TargetShop, Topic , Detail  } = req.body
     const dbo = client.db(process.env.DB_NAME);
     await client.connect();
-   
+ 
+
+
  
     try {
-        // console.log(useQuery)
+   
         let myobj = {
             Head : "Report",
             User : User ,
@@ -163,9 +160,9 @@ exports.getReport = async (req, res) => {
             dbo.collection("ReportComplete").insertOne(myobj);
     
             const updateAmount = { $set : { Status : "Banned"}}
-            dbo.collection("User").findOneAndUpdate({ email : User } , updateAmount ) 
+            dbo.collection("User").findOneAndUpdate({ email : Target } , updateAmount ) 
             dbo.collection("Report").findOneAndDelete({ Head : "Report" , User:User , Target:Target , TargetShop:TargetShop, Topic:Topic , Detail:Detail  } , )
-            console.log("Change Complete")
+      
             res.status(200).send("Success")
          }else{ res.status(400).send("Fail") }
       
@@ -182,9 +179,9 @@ exports.getReport = async (req, res) => {
     const dbo = client.db(process.env.DB_NAME);
     await client.connect();
    
- 
+    console.log("Dis")
     try {
-        // console.log(useQuery)
+   
         dbo.collection("Report").findOneAndDelete({ Head : "Report" , User:User , Target:Target , TargetShop:TargetShop, Topic:Topic , Detail:Detail  } , )
         res.status(200).send("Success")
         
@@ -199,17 +196,17 @@ exports.getReport = async (req, res) => {
     const { Target  } = req.body
     const dbo = client.db(process.env.DB_NAME);
     await client.connect();
-   
+   console.log(Target)
  
     try {
-        // console.log(useQuery)
+      
         if( Target !== undefined)
      {  
 
         const updateAmount = { $set : { Status : "Unbanned"}}
         dbo.collection("User").findOneAndUpdate({ email : Target } , updateAmount ) 
         dbo.collection("ReportComplete").findOneAndDelete({  Target:Target , Status:"Banned" } , )
-        console.log("Change Complete")
+
         res.status(200).send("Success")
      }else{ res.status(400).send("Fail") }
         
@@ -245,15 +242,15 @@ exports.getReport = async (req, res) => {
         })
         .toArray((err, result) => {
           if (err){
-            console.log("Cant connect data")
+        
             res.status(400).send({ message: "Cannot connect to database" });
             }
-            // console.log(getEmailModify);
+      
           res.send(result);
-          console.log(result);
+      
            
           
-          console.log("Get Data Success");
+         
         });
       
         
@@ -274,11 +271,11 @@ exports.getReport = async (req, res) => {
         let CheckM = await dbo.collection("CheckKYC").findOne( {Email : Email})
         const updateAmount = { $set : { role : "S" }}
       
-        if(CheckM){console.log("Found") 
+        if(CheckM){
         
            dbo.collection("CheckKYC").findOneAndDelete({Email : Email})
            dbo.collection("User").findOneAndUpdate( {email :Email}  , updateAmount )
-          console.log("Delete And Update Complete"); 
+       
           res.status(200).send("success");
          }
          else   res.status(400).send("Not found"); 
@@ -299,11 +296,11 @@ exports.getReport = async (req, res) => {
     try {
         let CheckM = await dbo.collection("CheckKYC").findOne( {Email : Email})
      
-      if(CheckM){console.log("Found") 
+      if(CheckM){
       
          dbo.collection("KYCSeller").findOneAndDelete({Email : Email})
          dbo.collection("CheckKYC").findOneAndDelete({Email : Email})
-        console.log("Delete from KycCheck Complete"); 
+       
         res.status(200).send("success");
        }
        else   res.status(400).send("Not found")

@@ -9,8 +9,7 @@ exports.getProductClick = async (req, res) => {
 
   const query = req.query
     const useQuery = query.Email.replaceAll('"', ''); 
-  console.log("Connected to database");
-  
+
 
     try{  
         const getProduct = await dbo.collection('Product')
@@ -40,7 +39,7 @@ exports.getProductClick = async (req, res) => {
     
 };
 exports.addProductClick = async (req, res) => {
-  console.log("Conected to database");
+
   const client = new MongoClient(process.env.MONGODB_URI);
   await client.connect();
   const {
@@ -55,7 +54,7 @@ exports.addProductClick = async (req, res) => {
     link,
   } = req.body;
   const EmailModify = Email?.replaceAll('"', "");
-  console.log(EmailModify);
+ 
   const id = new ObjectId();
   const NameProduct = shopName + "-" + id;
 
@@ -94,19 +93,19 @@ exports.getKycClick = async (req, res) => {
    const getEmailModify = query.Email?.replaceAll('"', "");
   const dbo = client.db(process.env.DB_NAME);
 
-  try {
+  // try {
    const getKyc =  await dbo.collection("KYCSeller").find({ shopName: query.shopName })
       .toArray((err, result) => {
         if (err)
           res.status(400).send({ message: "Cannot connect to database" });
-        // console.log(getEmailModify);
+     
         res.send(result);
-        // console.log(result);
+    
 
       });
-  } catch (err) {
-    res.status(400).send({ message: "Error to get data", err });
-  }
+  // } catch (err) {
+  //   res.status(400).send({ message: "Error to get data", err });
+  // }
 };
 
 exports.addKycClick = async (req, res) => {
@@ -166,13 +165,13 @@ let myobj =  {
   
       const CheckKyc = await dbo.collection("CheckKYC").insertOne(Check, function(err, res) {
             if (err) throw err;
-           console.log("Created Data"); 
+          
          
       });
         
       const KycSeller = await dbo.collection("KYCSeller").insertOne(myobj, function(err, res) {
             if (err) throw err;
-           console.log("Created Data"); 
+           
          
       });
 }
@@ -187,10 +186,9 @@ exports.getAllProduct = async (req, res) => {
           .toArray((err, result) => {
             if (err)
               res.status(400).send({ message: "Cannot connect to database" });
-              // console.log(getEmailModify);
+           
             res.send(result);
-            // console.log(result);
-            
+          
             
           });
         
@@ -213,12 +211,11 @@ exports.getUserSeller = async (req, res) => {
           .toArray((err, result) => {
             if (err)
               res.status(400).send({ message: "Cannot connect to database" });
-              // console.log(query.Email);
-              // console.log(getEmailModify);
+             
             res.send(result);
-            // console.log(result);
+          
             
-            console.log("Get Data Success");
+            
           });
         } catch (err) {
           res.status(400).send({ message: "Error to get data", err });
@@ -250,13 +247,13 @@ exports.getUserSeller = async (req, res) => {
           ),
             (err, result) => {
               if (err) throw err;
-              // console.log("result", result);
+             
               res.send(result);
-              console.log("1 document updated");
+              
             };
         
 
-        console.log(EmailModify);
+   
         res.status(200).send("success");
       } catch (err) {
         res.status(400).send({ message: "Error to get data", err });
@@ -279,11 +276,9 @@ exports.getUserSeller = async (req, res) => {
           
             if (err)
               res.status(400).send({ message: "Cannot connect to database" });
-              // console.log(getEmailModify);
+              
             res.send(result);
-            // console.log(result.shopName);
             
-            console.log("Get Data Success");
           });
         
           
@@ -312,9 +307,9 @@ exports.getUserSeller = async (req, res) => {
           ),
             (err, result) => {
               if (err) throw err;
-              // console.log("result", result);
+      
               res.send(result);
-              console.log("1 document updated");
+           
             };
         
 
@@ -327,9 +322,9 @@ exports.getUserSeller = async (req, res) => {
   exports.EditProduct = async (req, res) => {
     const client = new MongoClient(process.env.MONGODB_URI);
     await client.connect();
-    var { link, productName,price,detail} = req.body;
+    var { link, productName,price,detail,amount} = req.body;
     const dbo = client.db(process.env.DB_NAME);
-  
+
     await  dbo.collection("Product").findOneAndUpdate(
         { link: req.body.link },
         {
@@ -337,13 +332,14 @@ exports.getUserSeller = async (req, res) => {
             productName: req.body.productName,
             price: req.body.price,
             detail: req.body.detail,
+            amount:req.body.amount,
           },
         },
         { returnNewDocument: true },(err, result) => {
             if (err) throw err;
-            // console.log("result", result);
+        
             res.send(result);
-            console.log("1 document updated");
+            
             }
       )
   };
@@ -357,9 +353,9 @@ exports.getUserSeller = async (req, res) => {
     const DeleteProduct = await dbo.collection("Product").findOneAndDelete(
            { link : req.body.link },(err, result) => {
             if (err) throw err;
-            // console.log("result", result);  
+        
             res.send(result);
-            console.log("1 document Delete");
+          
             }
           
         )
@@ -480,7 +476,7 @@ exports.getUserSeller = async (req, res) => {
                   }
                     if(err) res.status(400).send({ message: 'Cannot connect to database'})
                     res.send(cou)
-                    // console.log(cou)
+                    
                 })
   };
   exports.addCouponSeller = async (req, res) => {
@@ -507,7 +503,7 @@ exports.getUserSeller = async (req, res) => {
   });
   const addCoupon = dbo.collection("Coupon").insertOne(myobj, function (err, result) {
     if (err) throw err;
-
+ return res.status(200).send("success");
   });
   };
   

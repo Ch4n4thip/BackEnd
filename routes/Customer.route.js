@@ -4,11 +4,11 @@ const controller = require('../controllers/Customer.controller')
 
 router.post('/ToHistory', controller.ToHistory)
 
-router.post('/Payment', controller.ToHistory)
+router.post('/Payment', controller.Payment)
 
 router.get('/Method', controller.Method)
 
-router.get('/delCompare', controller.delCompare)
+router.post('/delCompare', controller.delCompare)
 
 router.get('/getCompare', controller.getCompare)
 

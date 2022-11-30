@@ -18,7 +18,7 @@ router.get('/getReviewShop', controller.getReviewShop)
 
 router.post('/addToCompare', controller.addToCompare)
 
-router.post('/useCoupon', controller.useCoupon)
+router.get('/useCoupon', controller.useCoupon)
 
 router.post('/CouponAdmin', controller.CouponAdmin)
 
@@ -45,5 +45,7 @@ router.post('/Search', controller.Search)
 router.get('/FilterProduct', controller.FilterProduct)
 
 router.get('/FilterPrice', controller.FilterPrice)
+
+router.post('/deleteCart', controller.deleteCart)
 
 module.exports = router;
