@@ -9,7 +9,6 @@ exports.ToHistory = async (req, res) => {
   var { Email, Address, Method } = req.body;
 
   const dbo = client.db(process.env.DB_NAME);
-
   var editEmail = Email.replaceAll('"', "");
 
   var CheckM = await dbo
@@ -29,8 +28,10 @@ exports.ToHistory = async (req, res) => {
           DPrice: 1,
           DCategory: 1,
           status: 1,
+          Tracking: "Not yet",
           Address: Address,
           Method: Method,
+          
         },
       }
     )
@@ -368,6 +369,7 @@ exports.getOrder = async (req, res) => {
         DCategory: 1,
         Address: 1,
         Method: 1,
+        TrackingName:1,
       })
       .toArray((err, result) => {
         if (err) {
@@ -455,6 +457,7 @@ exports.getReturnOrder = async (req, res) => {
         amount: 1,
         Reason: 1,
         status: 1,
+        
       })
       .toArray((err, result) => {
         if (err) {
@@ -475,16 +478,16 @@ exports.getReturnOrder = async (req, res) => {
 exports.PackingComplete = async (req, res) => {
   const client = new MongoClient(process.env.MONGODB_URI);
   await client.connect();
-  const { Email, proID, RecName } = req.body;
+  const { Email, proID, RecName ,TrackingName} = req.body;
 
   const dbo = client.db(process.env.DB_NAME);
- 
+ console.log(TrackingName)
   if (Email !== undefined && proID !== undefined && RecName !== undefined) {
-    const updateAmount = { $set: { status: "Delivering" } };
+    const updateAmount = { $set: { status: "Delivering" ,TrackingName} };
     dbo
       .collection("Order")
       .findOneAndUpdate(
-        { User: RecName, productID: proID, DShopName: Email },
+        { User: RecName, productID: proID, DShopName: Email, },
         updateAmount
       );
     dbo

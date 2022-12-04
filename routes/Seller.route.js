@@ -5,7 +5,7 @@ const controller = require('../controllers/Seller.controller')
 //get product 
 router.get('/getProduct', controller.getProductClick)
 //add product
-router.post('/addProduct', controller.addProductClick)
+
 //get Kyc Seller
 router.get('/getKyc', controller.getKycClick)
 //Post Kyc Seller

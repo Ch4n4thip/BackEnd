@@ -16,8 +16,6 @@ router.get('/getDetails', controller.getDetails)
 
 router.get('/getReviewShop', controller.getReviewShop)
 
-router.post('/addToCompare', controller.addToCompare)
-
 router.get('/useCoupon', controller.useCoupon)
 
 router.post('/CouponAdmin', controller.CouponAdmin)
@@ -29,6 +27,10 @@ router.post('/addReview', controller.addReview)
 router.post('/addReturn', controller.addReturn)
 
 router.get('/getHistory', controller.getHistory)
+
+router.post('/successOmise', controller.successOmise)
+
+router.get('/getHistoryOmise', controller.getHistoryOmise)
 
 router.get('/getReturnHistory', controller.getReturnHistory)
 

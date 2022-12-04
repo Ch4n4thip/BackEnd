@@ -154,6 +154,7 @@ exports.addToCart = async (req, res) => {
           DCategory,
           DDetail,
           imgProduct,
+          Tracking: "Not yet",
         });
 
         const value = shopAmount - cartAmount;
@@ -260,110 +261,6 @@ exports.getReviewShop = async (req, res) => {
   } catch (err) {
     res.status(400).send({ message: "Error to get data", err });
   }
-};
-exports.addToCompare = async (req, res) => {
-  const client = new MongoClient(process.env.MONGODB_URI);
-  await client.connect();
-  const { Email, Amount, UserPro, Star } = req.body;
-  const dbo = client.db(process.env.DB_NAME);
-  var editEmail = Email.replaceAll('"', "");
-
-  // try {
-    const CheckM = await dbo
-      .collection("Compare")
-      .findOne({ email: editEmail });
-
-    let DEmail = UserPro[0].Email;
-    let DShopName = UserPro[0].shopName;
-    let DProductName = UserPro[0].productName;
-    let DPrice = UserPro[0].price;
-    let DAmount = UserPro[0].amount;
-    let DCategory = UserPro[0].category;
-    let IMG = UserPro[0].imgProduct;
-    let DDetail = UserPro[0].detail;
-    let idPro = UserPro[0].link;
-    let id = UserPro[0].id;
-    const pushComment = [];
-    const Comment = await dbo.collection("Comment").find({ id: id }).toArray();
-
-    Comment.map((item) => {
-      pushComment.push(item);
-    });
-
-    if (CheckM.product1 === 0) {
-      return null;
-    }
-
-    const updateAmount1 = {
-      $set: {
-        product1: {
-          Img: IMG,
-          productName: DProductName,
-          price: DPrice,
-          detail: DDetail,
-          link: idPro,
-          Star,
-          Comment: pushComment,
-        },
-      },
-    };
-    const updateAmount2 = {
-      $set: {
-        product2: {
-          Img: IMG,
-          productName: DProductName,
-          price: DPrice,
-          detail: DDetail,
-          link: idPro,
-          Star,
-          Comment: pushComment,
-        },
-      },
-    };
-    const updateAmount3 = {
-      $set: {
-        product3: {
-          Img: IMG,
-          productName: DProductName,
-          price: DPrice,
-          detail: DDetail,
-          link: idPro,
-          Star,
-          Comment: pushComment,
-        },
-      },
-    };
-
-    //var newValue = { $set: { name:name , birthdate : date , Tel : tel , gender : gender , img }};
-    if (CheckM) {
-      //dbo.collection("User").updateOne(CheckM,newValue )
-      if (CheckM.product1 === null) {
-        await dbo
-          .collection("Compare")
-          .findOneAndUpdate({ email: editEmail }, updateAmount1);
-        res.status(200).send({ message: "Changed Your info" });
-      } else if (CheckM.product2 === null) {
-        await dbo
-          .collection("Compare")
-          .findOneAndUpdate({ email: editEmail }, updateAmount2);
-        res.status(200).send({ message: "Changed Your info" });
-      } else if (CheckM.product3 === null) {
-        await dbo
-          .collection("Compare")
-          .findOneAndUpdate({ email: editEmail }, updateAmount3);
-        res.status(200).send({ message: "Changed Your info" });
-      } else {
-        await dbo
-          .collection("Compare")
-          .findOneAndUpdate({ email: editEmail }, updateAmount3);
-        res.status(200).send({ message: "Changed Your info" });
-      }
-    } else {
-      return res.status(400).send({ message: "Don't have this email" });
-    }
-  // } catch (err) {
-  //   res.status(400).send({ message: "Error to get data", err });
-  // }
 };
 
 exports.useCoupon = async (req, res) => {
@@ -590,6 +487,28 @@ exports.addReturn = async (req, res) => {
   res.status(200).send("OK");
 };
 
+exports.successOmise = async (req, res) => {
+  const client = new MongoClient(process.env.MONGODB_URI);
+
+  await client.connect();
+  const {
+    idProduct,
+    creditOmise,
+    Platform,
+    VAT,
+    Seller,
+  } = req.body;
+  const dbo = client.db(process.env.DB_NAME);
+  const updateOmiseIncome = { $set: { idProduct,creditOmise,Platform, VAT, Seller, statusAdmin:"จ่ายแล้ว"} };
+  dbo
+    .collection("Complete")
+    .findOneAndUpdate(
+      { productID: idProduct },
+      updateOmiseIncome
+    );
+
+  res.status(200).send("OK");
+};
 exports.getHistory = async (req, res) => {
   const client = new MongoClient(process.env.MONGODB_URI);
   const dbo = client.db(process.env.DB_NAME);
@@ -614,6 +533,43 @@ exports.getHistory = async (req, res) => {
         DCategory: 1,
         Address: 1,
         Method: 1,
+        TrackingName: 1,
+      })
+      .toArray((err, result) => {
+        if (err) {
+          res.status(400).send({ message: "Cannot connect to database" });
+        }
+
+        res.send(result);
+      });
+  } catch (err) {
+    res.status(400).send({ message: "Error to get data", err });
+  }
+};
+exports.getHistoryOmise = async (req, res) => {
+  const client = new MongoClient(process.env.MONGODB_URI);
+  const dbo = client.db(process.env.DB_NAME);
+  await client.connect();
+  
+
+  try {
+    await dbo
+      .collection("Complete")
+      .find({})
+      .project({
+        _id: 0,
+        status: 1,
+        productID: 1,
+        amount: 1,
+        DShopName: 1,
+        imgProduct: 1,
+        DProductName: 1,
+        DPrice: 1,
+        DCategory: 1,
+        Address: 1,
+        Method: 1,
+        TrackingName: 1,
+        statusAdmin:1,
       })
       .toArray((err, result) => {
         if (err) {
@@ -687,6 +643,8 @@ exports.received = async (req, res) => {
         DPrice: CheckM.DPrice,
         DCategory: CheckM.DCategory,
         Address: CheckM.Address,
+        TrackingName: CheckM.TrackingName,
+        statusAdmin: "รอการตรวจสอบ",
       };
       dbo.collection("Complete").insertOne(myobj, function (err, res) {
         if (err) {
@@ -770,6 +728,7 @@ exports.getCompleteHistory = async (req, res) => {
         DPrice: 1,
         DCategory: 1,
         Address: 1,
+        TrackingName: 1,
       })
       .toArray((err, result) => {
         if (err) {
@@ -916,3 +875,50 @@ exports.deleteCart = async (req, res) => {
     res.status(400).send({ message: "Error to get data", err });
   }
 };
+exports.addProduct = async (req, res) => {
+  const client = new MongoClient(process.env.MONGODB_URI);
+  await client.connect();
+  const {
+    Email,
+    productName,
+    shopName,
+    price,
+    amount,
+    category,
+    detail,
+    imgProduct,
+    link,
+  } = req.body;
+  const EmailModify = Email?.replaceAll('"', "");
+ 
+  const id = new ObjectId();
+  const NameProduct = shopName + "-" + id;
+
+  const dbo = client.db(process.env.DB_NAME);
+  let myobj = {
+    id: id,
+    Email: EmailModify,
+    shopName: shopName,
+    productName: req.body.productName,
+    price: req.body.price,
+    amount: req.body.amount,
+    category: req.body.category,
+    detail: req.body.detail,
+    imgProduct: req.body.img,
+    link: NameProduct,
+    addDate: new Date().toLocaleDateString("th-TH", {
+      weekday: "long",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    }),
+  };
+  res.status(200).send("success");
+
+  const addProduct = await dbo
+    .collection("Product")
+    .insertOne(myobj, function (err, result) {
+      if (err) throw err;
+     
+    });
+}

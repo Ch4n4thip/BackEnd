@@ -38,54 +38,7 @@ exports.getProductClick = async (req, res) => {
       
     
 };
-exports.addProductClick = async (req, res) => {
 
-  const client = new MongoClient(process.env.MONGODB_URI);
-  await client.connect();
-  const {
-    Email,
-    productName,
-    shopName,
-    price,
-    amount,
-    category,
-    detail,
-    imgProduct,
-    link,
-  } = req.body;
-  const EmailModify = Email?.replaceAll('"', "");
- 
-  const id = new ObjectId();
-  const NameProduct = shopName + "-" + id;
-
-  const dbo = client.db(process.env.DB_NAME);
-  let myobj = {
-    id: id,
-    Email: EmailModify,
-    shopName: shopName,
-    productName: req.body.productName,
-    price: req.body.price,
-    amount: req.body.amount,
-    category: req.body.category,
-    detail: req.body.detail,
-    imgProduct: req.body.img,
-    link: NameProduct,
-    addDate: new Date().toLocaleDateString("th-TH", {
-      weekday: "long",
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    }),
-  };
-  res.status(200).send("success");
-
-  const addProduct = await dbo
-    .collection("Product")
-    .insertOne(myobj, function (err, result) {
-      if (err) throw err;
-     
-    });
-};
 exports.getKycClick = async (req, res) => {
   const client = new MongoClient(process.env.MONGODB_URI);
   await client.connect();

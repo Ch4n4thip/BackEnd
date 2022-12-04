@@ -9,6 +9,8 @@ const productCart = require('./routes/Product.route')
 const Customer = require('./routes/Customer.route')
 const Admin = require('./routes/Admin.route')
 const Chat = require('./routes/Chat.route')
+const Input = require('./routes/FormInput.route')
+const compare = require('./routes/Compare.route')
 
 const corsOptions = {
     origin: '*',
@@ -30,4 +32,6 @@ app.use('/Product', productCart)
 app.use('/Customer', Customer)
 app.use('/Admin', Admin)
 app.use('/Chat', Chat)
+app.use('/FormInput', Input)
+app.use('/Compare', compare)
 module.exports = app;
