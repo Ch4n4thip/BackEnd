@@ -31,7 +31,17 @@ exports.ToHistory = async (req, res) => {
           Tracking: "Not yet",
           Address: Address,
           Method: Method,
-          
+          addDate: new Date().toLocaleDateString("th-TH", {
+            weekday: "long",
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          }),
+          addMonth: new Date().toLocaleDateString("th-TH", {
+            month: "short",
+
+          }),
+          addDateEng: new Date().toUTCString(),
         },
       }
     )
@@ -135,11 +145,23 @@ exports.Payment = async (req, res) => {
               Address: Address,
               Method: Method,
               statusPayment: omiseCharge.status,
+              addDate: new Date().toLocaleDateString("th-TH", {
+                weekday: "long",
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              }),
+              addMonth: new Date().toLocaleDateString("th-TH", {
+                month: "short",
+    
+              }),
+              addDateEng: new Date().toUTCString(),
+              
             },
           }
         )
         .toArray();
-      
+      console.log(addDateEng);
       if (CheckM) {
         //This section is for ADD to history
         dbo.collection("History").insertMany(CheckM, function (err, result) {
@@ -370,6 +392,7 @@ exports.getOrder = async (req, res) => {
         Address: 1,
         Method: 1,
         TrackingName:1,
+        addDate:1,
       })
       .toArray((err, result) => {
         if (err) {
@@ -413,6 +436,7 @@ exports.getCompleteOrder = async (req, res) => {
         DPrice: 1,
         DCategory: 1,
         Address: 1,
+        addDate: 1,
       })
       .toArray((err, result) => {
         if (err) {
@@ -481,7 +505,6 @@ exports.PackingComplete = async (req, res) => {
   const { Email, proID, RecName ,TrackingName} = req.body;
 
   const dbo = client.db(process.env.DB_NAME);
- console.log(TrackingName)
   if (Email !== undefined && proID !== undefined && RecName !== undefined) {
     const updateAmount = { $set: { status: "Delivering" ,TrackingName} };
     dbo

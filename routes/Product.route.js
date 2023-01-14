@@ -50,4 +50,7 @@ router.get('/FilterPrice', controller.FilterPrice)
 
 router.post('/deleteCart', controller.deleteCart)
 
+router.get('/getHistoryOmiseOneDay', controller.getHistoryOmiseOneDay)
+
+router.get('/getHistoryOmiseSevenDay', controller.getHistoryOmiseSevenDay)
 module.exports = router;

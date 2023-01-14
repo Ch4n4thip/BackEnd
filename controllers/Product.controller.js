@@ -534,6 +534,8 @@ exports.getHistory = async (req, res) => {
         Address: 1,
         Method: 1,
         TrackingName: 1,
+        addDate: 1,
+        
       })
       .toArray((err, result) => {
         if (err) {
@@ -570,6 +572,9 @@ exports.getHistoryOmise = async (req, res) => {
         Method: 1,
         TrackingName: 1,
         statusAdmin:1,
+        addDate: 1,
+        addMonth: 1,
+        addDateEng: 1,
       })
       .toArray((err, result) => {
         if (err) {
@@ -645,6 +650,10 @@ exports.received = async (req, res) => {
         Address: CheckM.Address,
         TrackingName: CheckM.TrackingName,
         statusAdmin: "รอการตรวจสอบ",
+        addDate: CheckM.addDate,
+        addMonth: CheckM.addMonth,
+        addDateEng: CheckM.addDateEng,
+        
       };
       dbo.collection("Complete").insertOne(myobj, function (err, res) {
         if (err) {
@@ -922,3 +931,78 @@ exports.addProduct = async (req, res) => {
      
     });
 }
+exports.getHistoryOmiseOneDay = async (req, res) => {
+  const client = new MongoClient(process.env.MONGODB_URI);
+  const dbo = client.db(process.env.DB_NAME);
+  await client.connect();
+  
+
+  try {
+    await dbo
+      .collection("Complete")
+      .find({})
+      .project({
+        _id: 0,
+        status: 1,
+        productID: 1,
+        amount: 1,
+        DShopName: 1,
+        imgProduct: 1,
+        DProductName: 1,
+        DPrice: 1,
+        DCategory: 1,
+        Address: 1,
+        Method: 1,
+        TrackingName: 1,
+        statusAdmin:1,
+        addDate: 1,
+        addMonth: 1,
+      })
+      .toArray((err, result) => {
+        if (err) {
+          res.status(400).send({ message: "Cannot connect to database" });
+        }
+
+        res.send(result);
+      });
+  } catch (err) {
+    res.status(400).send({ message: "Error to get data", err });
+  }
+};
+exports.getHistoryOmiseSevenDay = async (req, res) => {
+  const client = new MongoClient(process.env.MONGODB_URI);
+  const dbo = client.db(process.env.DB_NAME);
+  await client.connect();
+  
+
+  try {
+    await dbo
+      .collection("Complete")
+      .find({})
+      .project({
+        _id: 0,
+        status: 1,
+        productID: 1,
+        amount: 1,
+        DShopName: 1,
+        imgProduct: 1,
+        DProductName: 1,
+        DPrice: 1,
+        DCategory: 1,
+        Address: 1,
+        Method: 1,
+        TrackingName: 1,
+        statusAdmin:1,
+        addDate: 1,
+      })
+      .toArray((err, result) => {
+        if (err) {
+          res.status(400).send({ message: "Cannot connect to database" });
+        }
+
+        res.send(result);
+      });
+  } catch (err) {
+    res.status(400).send({ message: "Error to get data", err });
+  }
+};
